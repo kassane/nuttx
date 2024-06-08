@@ -20,9 +20,9 @@ on:
   push:
     paths-ignore:
       - 'Documentation/**'
-    branches:
-      - master
-      - 'releases/*'
+    # branches:
+    #   - master
+    #   - 'releases/*'
     tags:
 
 permissions:

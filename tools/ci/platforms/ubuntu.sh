@@ -153,6 +153,14 @@ gperf() {
 
 }
 
+ldc2() {
+  if ! type ldc2 > /dev/null 2>&1; then
+    sudo apt-get install ldc
+  fi
+
+  command ldc2 --version
+}
+
 kconfig_frontends() {
   add_path "${NUTTXTOOLS}"/kconfig-frontends/bin
 
@@ -369,6 +377,27 @@ u_boot_tools() {
   fi
 }
 
+zig() {
+  local zig_version
+  zig_version=0.13.0
+  add_path "${NUTTXTOOLS}"/zig/${zig_version}/files
+
+  if [ ! -f "${NUTTXTOOLS}/zig/${zig_version}/files/zig" ]; then
+    local basefile
+    basefile=zigup-x86_64-linux
+
+    cd "${NUTTXTOOLS}"
+    # Download the latest zigup (download and manage zig compilers)
+    wget --quiet https://github.com/marler8997/zigup/releases/download/v2024_05_05/${basefile}.tar.gz
+    tar xf ${basefile}.tar.gz
+    rm ${basefile}.tar.gz
+    command zigup --install-dir ${NUTTXTOOLS}/zig ${zig_version}
+    rm zigup
+  fi
+
+  command zig version
+}
+
 wasi_sdk() {
   add_path "${NUTTXTOOLS}"/wamrc
 
@@ -435,7 +464,7 @@ install_build_tools() {
   mkdir -p "${NUTTXTOOLS}"
   echo "#!/usr/bin/env sh" > "${NUTTXTOOLS}"/env.sh
 
-  install="arm_clang_toolchain arm_gcc_toolchain arm64_gcc_toolchain avr_gcc_toolchain binutils bloaty clang_tidy gen_romfs gperf kconfig_frontends mips_gcc_toolchain python_tools riscv_gcc_toolchain rust rx_gcc_toolchain sparc_gcc_toolchain xtensa_esp32_gcc_toolchain u_boot_tools util_linux wasi_sdk c_cache"
+  install="arm_clang_toolchain arm_gcc_toolchain arm64_gcc_toolchain avr_gcc_toolchain binutils bloaty clang_tidy gen_romfs gperf ldc kconfig_frontends mips_gcc_toolchain python_tools riscv_gcc_toolchain rust rx_gcc_toolchain sparc_gcc_toolchain xtensa_esp32_gcc_toolchain u_boot_tools util_linux zig wasi_sdk c_cache"
 
   oldpath=$(cd . && pwd -P)
   for func in ${install}; do

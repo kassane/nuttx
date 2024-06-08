@@ -15,8 +15,8 @@ name: Docker-Linux
 on:
   push:
     # Publish `master` as Docker `latest` image.
-    branches:
-      - master
+    # branches:
+    #   - master
     paths:
       - 'tools/ci/docker/linux/**'
       - '.github/workflows/docker_linux.yml'

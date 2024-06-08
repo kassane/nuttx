@@ -40,6 +40,7 @@ RUN apt-get update -qq && DEBIAN_FRONTEND="noninteractive" apt-get install -y -q
   ninja-build \
   nodejs \
   npm \
+  ldc \
   unzip
 
 RUN mkdir /tools
@@ -67,6 +68,12 @@ RUN mkdir -p $CARGO_HOME \
   && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
   && $CARGO_HOME/bin/rustup target add thumbv6m-none-eabi \
   && $CARGO_HOME/bin/rustup target add thumbv7m-none-eabi
+
+# Install Zig 0.13.0 supported from NuttX
+RUN curl -s -L https://github.com/marler8997/zigup/releases/download/v2024_05_05/zigup-x86_64-linux.tar.gz \
+  && tar xf zigup-x86_64-linux.tar.gz \
+  && chmod +x $PWD/zigup \
+  && $PWD/zigup --install-dir /tools/zig 0.13.0
 
 RUN mkdir /tools/gn -p \
   && cd /tools/gn \
@@ -370,6 +377,10 @@ COPY --from=nuttx-tools /tools/rust/ /tools/rust/
 ENV CARGO_HOME=/tools/rust/cargo
 ENV RUSTUP_HOME=/tools/rust/rustup
 ENV PATH="/tools/rust/cargo/bin:$PATH"
+
+# Pull in the Zig v0.13.0 toolchain including supported targets
+COPY --from=nuttx-tools /tools/zig/ /tools/zig/
+ENV PATH="/tools/zig/0.13.0/files:$PATH"
 
 # ARM toolchain
 COPY --from=nuttx-toolchain-arm /tools/clang-arm-none-eabi/ clang-arm-none-eabi/
